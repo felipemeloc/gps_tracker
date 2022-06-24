@@ -11,6 +11,10 @@ from datetime import timedelta
 
 load_dotenv()
 
+MAIN_FOLDER = os.getenv('MAIN_PATH')
+
+csv_path = os.path.join(MAIN_FOLDER, 'csv')
+
 USER_API_HASH = authentication()['USER_API_HASH']
 
 def get_devices_ids():
@@ -53,17 +57,14 @@ def get_travel_sheet_report(date_from, date_to):
             'message': message,
             'process': 'GENERATE TRAVEL REPORT'}
 
-if __name__ == '__main__':
+def generate_reports():
     NOW = pd.Timestamp.now()
     date_from= pd.Timestamp.now().strftime('%Y-%m-%d') + ' 00:00:00'
     date_to= (NOW + pd.Timedelta(1, unit='d')).strftime('%Y-%m-%d')
     report_response = get_travel_sheet_report(date_from, date_to)
     url = report_response['url']
     df = get_full_response_table(url)
-    ###  df.to_csv('csv/extraction.csv', index=False)
-    
-    
-    ################### CAMILA's CODE ######################
+    df.to_csv(os.path.join(csv_path, 'travel_sheet_report.csv'), index=False)
 
     average_stat = df.groupby('locksmith', as_index=False).agg(
         {'Duration': 'sum',
@@ -79,4 +80,7 @@ if __name__ == '__main__':
     for col in ['Driving time', 'Stop time']:
         average_stat[col] = average_stat[col].apply(delta_str)
     
-    print(average_stat)
+    average_stat.to_csv(os.path.join(csv_path, 'average_stat.csv'), index=False)
+    
+if __name__ == '__main__':
+    generate_reports()
