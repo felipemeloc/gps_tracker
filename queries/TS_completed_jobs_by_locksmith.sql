@@ -1,20 +1,19 @@
-------------- Today's completed jobs by locksmiths 
+------------- Today's jobs/revenue by locksmiths 
 SELECT
-SB.LocksmithName AS "Locksmith",
-COUNT(*) AS "No"
+SB.RecipientName AS "Locksmith",
+COUNT(*) AS "No",
+SUM(SB.NetCost) AS "Revenue"
 FROM 
 (
 SELECT
 LD.*,
-LS.LocksmithName,
+PF.RecipientName,
 PF.NetCost
 FROM [dbo].[Policy_LocksmithDetails] LD
-LEFT JOIN [dbo].[Lookup_Locksmiths] LS
-ON LD.LocksmithID = LS.ID
 LEFT JOIN [dbo].[Policy_Financial] PF
 ON LD.ReportID = PF.ReportID
 WHERE LD.Selected = 1
-AND LS.LocksmithName LIKE ('WGTK%')
+AND PF.RecipientName LIKE ('WGTK%')
 AND LD.ReportID IN (
 	SELECT
 	DISTINCT(PD.ReportID)
@@ -26,5 +25,5 @@ AND LD.ReportID IN (
 AND CAST(LD.AvailableFromDate AS DATE) = CAST(GETDATE() AS DATE)
 ) AS SB
 WHERE SB.NetCost IS NOT NULL
-GROUP BY SB.LocksmithName
-ORDER BY COUNT(*) DESC
+GROUP BY SB.RecipientName
+ORDER BY SUM(SB.NetCost) DESC, COUNT(*) DESC
