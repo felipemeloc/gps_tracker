@@ -144,3 +144,6 @@ jsons/
 
 # Cache FOLDER
 cache/
+
+# Images FOLDER
+images/
