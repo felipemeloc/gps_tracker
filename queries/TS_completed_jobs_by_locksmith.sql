@@ -1,7 +1,7 @@
 ------------- Today's jobs/revenue by locksmiths 
 SELECT
 SB.RecipientName AS "Locksmith",
-COUNT(*) AS "No",
+COUNT(*) AS "Jobs",
 SUM(SB.NetCost) AS "Revenue"
 FROM 
 (

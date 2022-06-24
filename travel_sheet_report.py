@@ -66,7 +66,7 @@ def generate_reports():
     df = get_full_response_table(url)
     df.to_csv(os.path.join(csv_path, 'travel_sheet_report.csv'), index=False)
 
-    average_stat = df.groupby('locksmith', as_index=False).agg(
+    average_stat = df.groupby('Locksmith', as_index=False).agg(
         {'Duration': 'sum',
         'Time at location': 'sum',
         'Route length (Mi)': 'sum'}
