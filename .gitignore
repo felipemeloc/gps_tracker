@@ -141,3 +141,6 @@ csv/
 
 # JSON FOLDER
 jsons/
+
+# Cache FOLDER
+cache/
