@@ -25,7 +25,7 @@ def get_full_response_table(url:str)->pd.DataFrame:
     df_list = []
     for key, val in df_dict.items():
         tmp_df = val.copy()
-        tmp_df['locksmith'] = key
+        tmp_df['Locksmith'] = key
         df_list.append(tmp_df)
     return clean_report(pd.concat(df_list, ignore_index=True))
 
@@ -41,7 +41,7 @@ def clean_report(df):
     for col in ['Duration', 'Time at location']:
         df[col] = pd.to_timedelta(df[col])
     # df['locksmith'] = df['locksmith'].str.lower().replace(r'wgtk[\s]*[\-]*[\s]*', '', regex=True).str.capitalize()
-    df['locksmith'] = utils.clean_locksmith_name(df['locksmith'])
+    df['Locksmith'] = utils.clean_locksmith_name(df['Locksmith'])
     return df
 
 if __name__ == '__main__':
@@ -50,4 +50,4 @@ if __name__ == '__main__':
     df.to_csv('sample.csv', index=False)
     
     print(df.head())
-    print(df['locksmith'].unique())
+    print(df['Locksmith'].unique())
