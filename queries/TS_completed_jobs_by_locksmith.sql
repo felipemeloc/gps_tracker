@@ -6,7 +6,7 @@ SUM(SB.NetCost) AS "Revenue"
 FROM 
 (
 SELECT
-LD.*,
+DISTINCT(LD.ReportID),
 PF.RecipientName,
 PF.NetCost
 FROM [dbo].[Policy_LocksmithDetails] LD
@@ -26,4 +26,4 @@ AND CAST(LD.AvailableFromDate AS DATE) = CAST(GETDATE() AS DATE)
 ) AS SB
 WHERE SB.NetCost IS NOT NULL
 GROUP BY SB.RecipientName
-ORDER BY SUM(SB.NetCost) DESC, COUNT(*) DESC
+ORDER BY  SB.RecipientName
