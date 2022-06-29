@@ -44,7 +44,7 @@ def df_to_image(df, image_path):
                         [{'selector': 'th.col_heading',
                         'props': 'text-align: center;'},
                         {'selector': 'td', 
-                        'props': 'text-align: center;'},
+                        'props': 'text-align: center; font-family: " Quicksand";'},
                         {'selector': 'th:not(.index_name)',
                         'props': 'background-color: #023858; color: white;'},#first headers background color. Second headers font color
                         {'selector': 'td', 
