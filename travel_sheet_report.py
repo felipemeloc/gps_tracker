@@ -37,7 +37,7 @@ def get_travel_sheet_report(date_from, date_to):
                     'date_from': date_from,
                     'date_to': date_to,
                     'devices':  get_devices_ids(),
-                    'stops': 5*60 # 5 minutes * 60 seconds // number of seconds
+                    'stops': 3*60 # 3 minutes * 60 seconds // number of seconds
                     }
     TRAVEL_SHEET_REPORT =  os.getenv('TRAVEL_SHEET_REPORT')
     api_response = requests.post(TRAVEL_SHEET_REPORT, json = arguments)
