@@ -1,24 +1,21 @@
----------- Today's completed jobs by locksmiths 
+------------- Today's jobs/revenue by locksmiths (POSTCODE)
 SELECT
-SB.LocksmithName AS "Locksmith",
-SB.LocksmithPostCode,
-SUM(SB.NetCost) AS NetCost
+SB.RecipientName AS "Locksmith",
+SB.LocksmithPostCode
 FROM 
 (
 SELECT
 LD.*,
 CK.LocksmithPostCode,
-LS.LocksmithName,
+PF.RecipientName,
 PF.NetCost
 FROM [dbo].[Policy_LocksmithDetails] LD
-LEFT JOIN [dbo].[Lookup_Locksmiths] LS
-ON LD.LocksmithID = LS.ID
 LEFT JOIN [dbo].[Policy_Financial] PF
 ON LD.ReportID = PF.ReportID
 LEFT JOIN [dbo].[Policy_ClaimDetails_Key] CK
 ON LD.ReportID = CK.ReportID
 WHERE LD.Selected = 1
-AND LS.LocksmithName LIKE ('WGTK%')
+AND PF.RecipientName LIKE ('WGTK%')
 AND LD.ReportID IN (
 	SELECT
 	DISTINCT(PD.ReportID)
@@ -30,5 +27,4 @@ AND LD.ReportID IN (
 AND CAST(LD.AvailableFromDate AS DATE) = CAST(GETDATE() AS DATE)
 ) AS SB
 WHERE SB.NetCost IS NOT NULL
-GROUP BY SB.LocksmithName , SB.LocksmithPostCode
-ORDER BY SUM(SB.NetCost) DESC
+GROUP BY SB.RecipientName, SB.LocksmithPostCode
