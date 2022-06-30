@@ -120,15 +120,21 @@ def get_match_report(completed_jobs:pd.DataFrame, travel_data:pd.DataFrame)->pd.
 def save_match(df:pd.DataFrame, path:str)->None:
     delta_str = lambda x: f"{timedelta(seconds=x.total_seconds())}" if isinstance(x, pd.Timedelta) else np.NaN
     if not df.empty:
-        for col in ['Duration', 'Time at location']:
+        for col in ['Duration', 'Time at location', 'split_time']:
             df[col] = df[col].apply(delta_str)
     df.to_csv(path, index=False)
 
+def get_split_time(df:pd.DataFrame):
+    df.index.name = 'Route ID'
+    df.reset_index(inplace=True)
+    split = df.groupby(['Route ID', 'Time at location'], as_index=False).agg({'ReportID':'count'})
+    split['split_time'] = split['Time at location'] / split['ReportID']
+    return df.merge(split[['Route ID', 'split_time']], how='left', on='Route ID')
 
 if __name__ == '__main__':
     generate_reports()
     travel_data = get_travel_data(TRAVEL_DATA)
     completed_jobs = get_postcode_coor()
     a = get_match_report(completed_jobs, travel_data)
-    save_match(a, 'csv/match.csv')
-    print(a)
+    a = get_split_time(a)
+    save_match(a, 'csv/match_fix.csv')
