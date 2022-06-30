@@ -134,7 +134,7 @@ dmypy.json
 logs/*
 
 # Test File
-test.py
+test*.py
 
 # CVC FOLDER
 csv/
