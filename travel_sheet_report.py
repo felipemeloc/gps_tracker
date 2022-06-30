@@ -1,21 +1,32 @@
 import os
 import pandas as pd
-from logging import raiseExceptions
 import requests
-from src.api_authentication import authentication
+from datetime import timedelta
 from src.get_devices import get_devices
+from src.api_authentication import authentication
 from  src.read_api_report_response import get_full_response_table
 from dotenv import load_dotenv
-from datetime import timedelta
+import logging
 
 
 load_dotenv()
 
 MAIN_FOLDER = os.getenv('MAIN_PATH')
 
-csv_path = os.path.join(MAIN_FOLDER, 'csv')
-
 USER_API_HASH = authentication()['USER_API_HASH']
+
+# LOG File save
+log_file = os.path.join(MAIN_FOLDER, 'logs/travel_report.log')
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler(log_file)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+################################## Basic paths #####################################
+
+csv_path = os.path.join(MAIN_FOLDER, 'csv')
 
 def get_devices_ids():
     response = get_devices()
@@ -39,18 +50,18 @@ def get_travel_sheet_report(date_from, date_to):
                     'devices':  get_devices_ids(),
                     'stops': 3*60 # 3 minutes * 60 seconds // number of seconds
                     }
-    TRAVEL_SHEET_REPORT =  os.getenv('TRAVEL_SHEET_REPORT')
-    api_response = requests.post(TRAVEL_SHEET_REPORT, json = arguments)
+    TRAVEL_SHEET_REPORT_URL =  os.getenv('TRAVEL_SHEET_REPORT_URL')
+    api_response = requests.post(TRAVEL_SHEET_REPORT_URL, json = arguments)
     status_code = api_response.status_code
     message = None
     report_url = None
-    print(f'GENERATE TRAVEL REPORT: STATUS CODE {status_code}')
+    logger.info(f'GENERATE TRAVEL REPORT: STATUS CODE {status_code}')
     if status_code == 200:
         report_url = api_response.json()['url']
         
     else:
         message = api_response.json()['message']
-        print(f'\tERROR: {message}')
+        logger.error(f'\tERROR: {message}')
         
     return {'status_code': status_code,
             'url':  report_url,
@@ -83,4 +94,10 @@ def generate_reports():
     average_stat.to_csv(os.path.join(csv_path, 'average_stat.csv'), index=False)
     
 if __name__ == '__main__':
-    generate_reports()
+    logger.info('Process started')
+    try:
+        generate_reports()
+        logger.info('Process Successful')
+    except Exception as e:
+        logger.exception(e)
+        
