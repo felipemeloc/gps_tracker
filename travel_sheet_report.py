@@ -59,7 +59,7 @@ def get_travel_sheet_report(date_from, date_to):
 
 def generate_reports():
     NOW = pd.Timestamp.now()
-    date_from= pd.Timestamp.now().strftime('%Y-%m-%d') + ' 00:00:00'
+    date_from= NOW.strftime('%Y-%m-%d') + ' 00:00:00'
     date_to= (NOW + pd.Timedelta(1, unit='d')).strftime('%Y-%m-%d')
     report_response = get_travel_sheet_report(date_from, date_to)
     url = report_response['url']
