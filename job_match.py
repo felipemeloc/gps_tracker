@@ -50,14 +50,14 @@ def get_coordinates(post_code:str)->tuple:
     else:
         return None
     
-def get_distance(coor1, coor2):
+def get_distance(coor1:tuple, coor2:tuple)->float:
     distance = geodesic(coor1, coor2).miles
     return distance
 
 def save_cache(df:pd.DataFrame):
     df[['LocksmithPostCode', 'Coordinates']].drop_duplicates('LocksmithPostCode').to_csv(cache_path, index=False)
     
-def get_postcode_coor():
+def get_postcode_coor()->pd.DataFrame:
     completed_jobs = db.sql_to_df(TS_completed_jobs_postcode)
     completed_jobs['Locksmith'] = utils.clean_locksmith_name(completed_jobs['Locksmith'])
     completed_jobs['LocksmithPostCode'] = completed_jobs['LocksmithPostCode'].apply(fix_post_code_format)
@@ -67,11 +67,11 @@ def get_postcode_coor():
     save_cache(completed_jobs)
     return completed_jobs
 
-def clean_position(coord):
+def clean_position(coord:tuple)->tuple:
     return tuple([float(item) for item in coord.split(',')])
     
-def get_travel_data():
-    travel_data = pd.read_csv(TRAVEL_DATA)
+def get_travel_data(path:str)->pd.DataFrame:
+    travel_data = pd.read_csv(path)
     for col in ['Position A', 'Position B']:
         travel_data[col] = travel_data[col].apply(clean_position)
     for col in ['Duration', 'Time at location']:
@@ -80,25 +80,23 @@ def get_travel_data():
         travel_data[col] = pd.to_datetime(travel_data[col])
     return travel_data
 
+def get_match_report(completed_jobs:pd.DataFrame, travel_data:pd.DataFrame)->pd.DataFrame:
+    match = []
+    for _, row in completed_jobs.iterrows():
+        locksmith = row['Locksmith']
+        job_coordinates = row['Coordinates']
+        ReportID = row['ReportID']
+        tmp_df = travel_data[travel_data['Locksmith']==locksmith]
+        tmp_df['distance'] = tmp_df['Position B'].apply(lambda x: get_distance(x, job_coordinates))
+        tmp_df = tmp_df[(tmp_df['distance']<=0.5) & (tmp_df['distance'] == tmp_df['distance'].min())]
+        if not tmp_df.empty:
+            match.append({'ReportID': ReportID, 'index': tmp_df.index[0], 'Distance (Mi)': tmp_df.iloc[0]['distance']})
+    match = pd.DataFrame(match).set_index('index')
+    return travel_data.merge(match, how='left', left_index=True, right_index=True)
 
-generate_reports()
-travel_data = get_travel_data()
-completed_jobs = get_postcode_coor()
-# print(completed_jobs)
-# print(travel_data)
-print('\n\n')
-
-match = []
-for _, row in completed_jobs.iterrows():
-    locksmith = row['Locksmith']
-    job_coordinates = row['Coordinates']
-    ReportID = row['ReportID']
-    tmp_df = travel_data[travel_data['Locksmith']==locksmith]
-    tmp_df['distance'] = tmp_df['Position B'].apply(lambda x: get_distance(x, job_coordinates))
-    tmp_df = tmp_df[(tmp_df['distance']<=0.5) & (tmp_df['distance'] == tmp_df['distance'].min())]
-    if not tmp_df.empty:
-        match.append({'ReportID': ReportID, 'index': tmp_df.index[0], 'Distance (Mi)': tmp_df.iloc[0]['distance']})
-match = pd.DataFrame(match).set_index('index')
-
-a = travel_data.merge(match, how='left', left_index=True, right_index=True)
-a.to_csv('csv/match.csv', index=False)
+if __name__ == '__main__':
+    generate_reports()
+    travel_data = get_travel_data(TRAVEL_DATA)
+    completed_jobs = get_postcode_coor()
+    a = get_match_report(completed_jobs, travel_data)
+    a.to_csv('csv/match.csv', index=False)
