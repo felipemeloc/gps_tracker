@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 
 csv_path = os.path.join(MAIN_FOLDER, 'csv')
 
-image_path = os.path.join(MAIN_FOLDER, 'images/test.png')
+image_path = os.path.join(MAIN_FOLDER, 'images/locksmith_summary.png')
 
 ################################## Query Load #####################################
 
