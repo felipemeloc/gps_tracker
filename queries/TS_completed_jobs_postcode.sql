@@ -24,9 +24,9 @@ AND LD.ReportID IN (
 	FROM
 	[dbo].[Policy_Diary] PD
 	WHERE PD.Active = 0
-	AND CAST(PD.ClosedDate AS DATE) = CAST(GETDATE() AS DATE)
+	AND CAST(PD.ClosedDate AS DATE) > DATEADD(DAY, -2, GETDATE())
 )
-AND CAST(LD.AvailableFromDate AS DATE) = CAST(GETDATE() AS DATE)
+AND CAST(LD.AvailableFromDate AS DATE) > DATEADD(DAY, -2, GETDATE())
 ) AS SB
 WHERE SB.NetCost IS NOT NULL
 GROUP BY SB.RecipientName, SB.LocksmithPostCode, SB.LocksmithSuppliedServicesIds, SB.ReportID;
