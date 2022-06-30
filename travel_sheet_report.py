@@ -68,10 +68,11 @@ def get_travel_sheet_report(date_from, date_to):
             'message': message,
             'process': 'GENERATE TRAVEL REPORT'}
 
-def generate_reports():
-    NOW = pd.Timestamp.now()
-    date_from= NOW.strftime('%Y-%m-%d') + ' 00:00:00'
-    date_to= (NOW + pd.Timedelta(1, unit='d')).strftime('%Y-%m-%d')
+def generate_reports(date:pd.Timestamp=None, return_data=False):
+    if not date:
+        date = pd.Timestamp.now()
+    date_from= date.strftime('%Y-%m-%d') + ' 00:00:00'
+    date_to= (date + pd.Timedelta(1, unit='d')).strftime('%Y-%m-%d') + ' 00:00:00'
     report_response = get_travel_sheet_report(date_from, date_to)
     url = report_response['url']
     df = get_full_response_table(url)
@@ -92,6 +93,8 @@ def generate_reports():
         average_stat[col] = average_stat[col].apply(delta_str)
     
     average_stat.to_csv(os.path.join(csv_path, 'average_stat.csv'), index=False)
+    if return_data:
+        return df
     
 if __name__ == '__main__':
     logger.info('Process started')
