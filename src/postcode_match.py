@@ -50,7 +50,7 @@ def postcode_process(df:pd.DataFrame):
     df = get_coordinates_from_db(df)
     df = get_new_coordinates(df)
     save_cache(df)
-    return df[['ReportID', 'postcode_lat', 'postcode_long']].drop_duplicates()
+    return df[['ReportID', 'LocksmithPostCode', 'postcode_lat', 'postcode_long']].drop_duplicates().rename(columns={'LocksmithPostCode': 'postcode'})
 
 
 if __name__== '__main__':
