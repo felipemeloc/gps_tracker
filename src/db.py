@@ -21,15 +21,25 @@ from dotenv import load_dotenv
 load_dotenv()
 warnings.filterwarnings("ignore")
 
-def get_conn()->pyodbc.Connection:
+def get_conn(use_live=True)->pyodbc.Connection:
     """Function to make the connection with sql management studio
+
+    Args:
+        use_live (bool): Use or not the live database
+
     Returns:
         pyodbc.Connection: Database connection
-    """    
-    SERVER = os.getenv('SERVER')
-    DATABASE = os.getenv('DATABASE')
-    USER_NAME = os.getenv('USER_NAME')
-    PASSWORD = os.getenv('DATABASE_PASSWORD')
+    """
+    if use_live:
+        SERVER = os.getenv('SERVER')
+        DATABASE = os.getenv('DATABASE')
+        USER_NAME = os.getenv('USER_NAME')
+        PASSWORD = os.getenv('DATABASE_PASSWORD')
+    else:
+        SERVER = os.getenv('SERVER_JASPER')
+        DATABASE = os.getenv('DATABASE_JASPER')
+        USER_NAME = os.getenv('USER_NAME_JASPER')
+        PASSWORD = os.getenv('DATABASE_PASSWORD_JASPER')
 
     conn_str = ("Driver={SQL Server};"
                 f"Server={SERVER};"
@@ -39,14 +49,17 @@ def get_conn()->pyodbc.Connection:
     conn = pyodbc.connect(conn_str)
     return conn
 
-def sql_to_df(query:str)->pd.DataFrame:
+def sql_to_df(query:str, use_live:bool=True)->pd.DataFrame:
     """Function to get info from a database base in a Query
+
     Args:
         query (str): String with the query statement
+        use_live (bool): Use or not the live database
+
     Returns:
         pd.DataFrame: Dataframe with the info result of the query
     """    
-    conn = get_conn()
+    conn = get_conn(use_live)
     return pd.read_sql_query(query, conn)
 
 if __name__ == '__main__':
