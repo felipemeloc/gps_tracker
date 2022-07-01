@@ -12,8 +12,19 @@ Contains the following function:
 """
 
 
+import pandas as pd
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
+from shapely.geometry import Point, Polygon
+
+bca_coords = [(51.525843, -2.683383),
+(51.523520, -2.677107),
+(51.523520, -2.677107),
+(51.516857, -2.682418),
+(51.521277, -2.689488),
+(51.525843, -2.683383)]
+
+bca = Polygon(bca_coords)
 
 def get_distance(coor1:tuple[float, float], coor2:tuple[float, float])->float:
     """Function to calculate the distance between two coordinates
@@ -43,3 +54,6 @@ def get_coordinates(post_code:str)->tuple[float, float]:
         return location.latitude, location.longitude
     else:
         return None
+
+def into_bca(coor:tuple)->bool:
+    return Point(coor).within(bca)
