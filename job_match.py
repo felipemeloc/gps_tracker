@@ -49,7 +49,6 @@ def save_cache(df:pd.DataFrame):
 def get_postcode_coor()->pd.DataFrame:
     date = pd.Timestamp.now()
     completed_jobs = db.sql_to_df(TS_completed_jobs_postcode.format(TARGET_DATE= date.strftime('%Y-%m-%d')))
-    service = db.sql_to_df(TS_locksmith_services).set_index('ID').to_dict()['Service']
     completed_jobs['Locksmith'] = utils.clean_locksmith_name(completed_jobs['Locksmith'])
     completed_jobs['LocksmithPostCode'] = completed_jobs['LocksmithPostCode'].apply(utils.fix_post_code_format)
     completed_jobs = completed_jobs.merge(cache, on='LocksmithPostCode', how='left').fillna(value=-1)
