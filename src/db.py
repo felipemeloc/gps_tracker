@@ -13,6 +13,7 @@ Contains the following function:
 """
 
 import os
+from async_timeout import final
 import pyodbc
 import pandas as pd
 import warnings
@@ -62,7 +63,37 @@ def sql_to_df(query:str, use_live:bool=True)->pd.DataFrame:
     conn = get_conn(use_live)
     return pd.read_sql_query(query, conn)
 
+def df_to_sql(df:pd.DataFrame, table_name:str, use_live:bool=False, columns:list=None):
+    if not df.empty:
+
+        to_str = lambda x: f"'{x}'"
+        base_query = """INSERT INTO {TABLE}
+                    ({FIELDS})
+                    VALUES {VALUES}"""
+
+        if columns:
+            fields = ', '.join([col for col in columns])
+            df = df[columns].copy()
+        else:
+            fields = ', '.join([col for col in df.columns])
+
+        values = []
+        for _, row in df.iterrows():
+            data = ', '.join([to_str(val) if isinstance(val, str) else str(val) for val in row.values])
+            values.append(f'({data})')
+        values = ',\n'.join(values)
+        
+        final_query = base_query.format(TABLE= table_name,
+                                FIELDS= fields,
+                                VALUES= values)
+        conn = get_conn(use_live)
+        cursor = conn.cursor()
+        cursor.execute(final_query)
+        conn.commit()
+        cursor.close()
+
+
 if __name__ == '__main__':
     query = """SELECT * FROM [dbo].[Lookup_ClaimStatus];"""
-    df = sql_to_df(query)
+    df = sql_to_df(query, use_live=False)
     print(df)
