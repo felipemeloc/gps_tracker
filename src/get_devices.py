@@ -2,6 +2,7 @@
 import json
 import requests
 import pandas as pd
+from api_authentication import authentication
 
 json_path = 'jsons/devices.json'
 csv_path = 'csv/devices.csv'
@@ -48,12 +49,8 @@ def get_devices():
             'process': 'GET DEVICES'}
 
 if __name__ == '__main__':
-    from api_authentication import authentication
     results = get_devices()
     df = results['devices']
     devices = df[df['group_name']=='WGTK']
     devices.to_csv(csv_path, index=False)
-    print(devices)#.str.lower().replace(r'wgtk[\s]*[\-]*[\s]*', '', regex=True).str.strip().str.capitalize())
-    
-else:
-    from src.api_authentication import authentication
+    print(devices)
