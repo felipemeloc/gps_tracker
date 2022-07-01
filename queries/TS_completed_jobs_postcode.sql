@@ -28,4 +28,4 @@ AND LD.ReportID IN (
 AND CAST(LD.AvailableFromDate AS DATE) = '{TARGET_DATE}'
 ) AS SB
 WHERE SB.NetCost IS NOT NULL
-GROUP BY SB.RecipientName, SB.LocksmithPostCode, SB.ReportID;
+GROUP BY SB.ReportID, SB.RecipientName, SB.LocksmithPostCode;
