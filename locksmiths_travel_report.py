@@ -50,7 +50,7 @@ def get_completed_locksmith_report():
         return pd.DataFrame()
 
 def df_to_image(df, image_path):
-    df_style = df.style.format({"Revenue": "£{}"},
+    df_style = df.style.format({"Revenue": "£{:.1f}"},
                             na_rep=" ", precision=2
                     ).hide_index(
                     # ).set_caption("Locksmith Jobs completed summary"
