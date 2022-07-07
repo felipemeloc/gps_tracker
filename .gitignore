@@ -136,6 +136,9 @@ logs/*
 # Test File
 test*.py
 
+# Temporary File
+tmp*
+
 # CVC FOLDER
 csv/
 
