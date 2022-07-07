@@ -13,10 +13,11 @@ Contains the following function:
 """
 
 import os
-from async_timeout import final
 import pyodbc
+import urllib
 import pandas as pd
 import warnings
+import sqlalchemy as sa
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -42,12 +43,14 @@ def get_conn(use_live=True)->pyodbc.Connection:
         USER_NAME = os.getenv('USER_NAME_JASPER')
         PASSWORD = os.getenv('DATABASE_PASSWORD_JASPER')
 
-    conn_str = ("Driver={SQL Server};"
-                f"Server={SERVER};"
-                f"Database={DATABASE};"
-                f"UID={USER_NAME};"
-                f"PWD={PASSWORD};")
-    conn = pyodbc.connect(conn_str)
+    conn_str = urllib.parse.quote_plus(
+        f"""DRIVER={{ODBC Driver 17 for SQL Server}};
+        SERVER={SERVER};
+        DATABASE={DATABASE};
+        UID={USER_NAME};
+        PWD={PASSWORD}"""
+        )
+    conn = sa.create_engine(f"""mssql+pyodbc:///?odbc_connect={conn_str}""")
     return conn
 
 def sql_to_df(query:str, use_live:bool=True)->pd.DataFrame:
@@ -95,5 +98,5 @@ def df_to_sql(df:pd.DataFrame, table_name:str, use_live:bool=False, columns:list
 
 if __name__ == '__main__':
     query = """SELECT * FROM [dbo].[Lookup_ClaimStatus];"""
-    df = sql_to_df(query, use_live=False)
+    df = sql_to_df(query, use_live=True)
     print(df)
