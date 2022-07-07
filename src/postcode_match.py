@@ -1,5 +1,3 @@
-from pickle import TRUE
-from pandas import DataFrame
 import os
 import pandas as pd
 import db
@@ -44,7 +42,10 @@ def save_cache(df:pd.DataFrame):
     df = df[df['cache'] != True][['LocksmithPostCode', 'postcode_lat', 'postcode_long']].rename(columns={'LocksmithPostCode': 'postcode'})
     df.drop_duplicates(inplace=True)
     if not df.empty:
-        db.df_to_sql(df, '[dbo].[postcode_coordinates]', use_live=False)
+        db.df_to_sql(df,
+                     table_name='postcode_coordinates',
+                     table_schema= 'dbo',
+                     use_live=False)
 
 def postcode_process(df:pd.DataFrame):
     df = get_coordinates_from_db(df)
